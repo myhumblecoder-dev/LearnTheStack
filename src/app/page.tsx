@@ -1,8 +1,11 @@
 import { CurrentTopic } from "@/components/dashboard/CurrentTopic";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
+import { StreakSection } from "@/components/dashboard/StreakSection";
 import { MonthProgress } from "@/components/dashboard/MonthProgress";
 import { RecentQuizzes } from "@/components/dashboard/RecentQuizzes";
 import { DueReviews } from "@/components/schedule/DueReviews";
+
+export const dynamic = "force-dynamic";
 
 export default function Dashboard() {
   return (
@@ -17,6 +20,7 @@ export default function Dashboard() {
       <CurrentTopic />
       <DueReviews />
       <ProgressOverview />
+      <StreakSection />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <MonthProgress />
