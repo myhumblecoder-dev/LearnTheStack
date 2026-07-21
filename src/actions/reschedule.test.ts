@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { rescheduleOverdueTopics } from './reschedule'
 import { prisma as db } from '@/lib/db'
-import type { Topic } from '@prisma/client'
+import type { RescheduleTopic } from '@/lib/curriculum/reschedule'
+
+// The action passes prisma.topic.findMany({ include: { progress: true } }) rows
+// into computeReschedule, which only reads id/scheduledDate/progress — exactly
+// RescheduleTopic. Cast the mock return to findMany's payload shape via unknown.
+type FindManyResult = Awaited<ReturnType<typeof db.topic.findMany>>
 
 // Mock the database
 vi.mock('@/lib/db', () => ({
@@ -26,22 +31,22 @@ describe('reschedule', () => {
   it('updates each overdue topic scheduled date', async () => {
     // Arrange: One topic is overdue (scheduled for June 10) and not completed
     // One topic is completed (should not be in plan)
-    const overdueTopic: Partial<Topic> = {
+    const overdueTopic: RescheduleTopic = {
       id: 1,
       scheduledDate: new Date(Date.UTC(2024, 5, 10)),
-      progress: { status: 'NOT_STARTED' as const },
+      progress: { status: 'NOT_STARTED' },
     }
-    
-    const completedTopic: Partial<Topic> = {
+
+    const completedTopic: RescheduleTopic = {
       id: 2,
       scheduledDate: new Date(Date.UTC(2024, 5, 20)),
-      progress: { status: 'COMPLETED' as const },
+      progress: { status: 'COMPLETED' },
     }
 
     vi.mocked(db.topic.findMany).mockResolvedValue([
-      overdueTopic as Topic,
-      completedTopic as Topic,
-    ] as Topic[])
+      overdueTopic,
+      completedTopic,
+    ] as unknown as FindManyResult)
 
     // Act
     await rescheduleOverdueTopics()
@@ -59,21 +64,21 @@ describe('reschedule', () => {
 
   it('returns the rescheduled count', async () => {
     // Arrange: Two overdue topics
-    const topic1: Partial<Topic> = {
+    const topic1: RescheduleTopic = {
       id: 1,
       scheduledDate: new Date(Date.UTC(2024, 5, 10)),
-      progress: { status: 'NOT_STARTED' as const },
+      progress: { status: 'NOT_STARTED' },
     }
-    const topic2: Partial<Topic> = {
+    const topic2: RescheduleTopic = {
       id: 2,
       scheduledDate: new Date(Date.UTC(2024, 5, 11)),
-      progress: { status: 'IN_PROGRESS' as const },
+      progress: { status: 'IN_PROGRESS' },
     }
 
     vi.mocked(db.topic.findMany).mockResolvedValue([
-      topic1 as Topic,
-      topic2 as Topic,
-    ] as Topic[])
+      topic1,
+      topic2,
+    ] as unknown as FindManyResult)
 
     // Act
     const result = await rescheduleOverdueTopics()
@@ -84,21 +89,21 @@ describe('reschedule', () => {
 
   it('does nothing when on track', async () => {
     // Arrange: All topics are either completed or in the future
-    const topic1: Partial<Topic> = {
+    const topic1: RescheduleTopic = {
       id: 1,
       scheduledDate: new Date(Date.UTC(2024, 5, 20)),
-      progress: { status: 'NOT_STARTED' as const },
+      progress: { status: 'NOT_STARTED' },
     }
-    const topic2: Partial<Topic> = {
+    const topic2: RescheduleTopic = {
       id: 2,
       scheduledDate: new Date(Date.UTC(2024, 5, 10)),
-      progress: { status: 'COMPLETED' as const },
+      progress: { status: 'COMPLETED' },
     }
 
     vi.mocked(db.topic.findMany).mockResolvedValue([
-      topic1 as Topic,
-      topic2 as Topic,
-    ] as Topic[])
+      topic1,
+      topic2,
+    ] as unknown as FindManyResult)
 
     // Act
     const result = await rescheduleOverdueTopics()
