@@ -4,17 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:migrate": "npx prisma migrate dev",
+    "db:deploy": "npx prisma migrate deploy",
     "db:seed": "npx tsx prisma/seed.ts",
+    "db:setup": "npx prisma migrate deploy && npx prisma generate && npx tsx prisma/seed.ts",
     "db:reset": "npx prisma migrate reset --force",
     "db:studio": "npx prisma studio"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.64",
-    "@ai-sdk/openai-compatible": "^2.0.37",
+    "@ai-sdk/openai-compatible": "^2.0.62",
     "@ai-sdk/react": "^3.0.139",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
@@ -28,17 +32,23 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/pg": "^8.11.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^6.0.3",
     "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "jsdom": "^29.1.1",
     "prisma": "^7.5.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }

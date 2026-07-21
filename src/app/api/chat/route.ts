@@ -87,24 +87,25 @@ export async function POST(req: Request) {
 
     const modelMessages = await convertToModelMessages(messages);
 
+    // Pre-generate the assistant message id so the client and DB agree.
+    const assistantExternalId = uuidv4();
+
     const result = streamTutorResponse({
       mode,
       messages: modelMessages,
       topicContext,
-    });
-
-    // Pre-generate the assistant message id so the client and DB agree.
-    const assistantExternalId = uuidv4();
-
-    // Save assistant response after streaming (fire-and-forget)
-    result.text.then(async (text: string) => {
-      await saveChatMessage({
-        topicId: topicId || null,
-        mode,
-        role: "assistant",
-        content: text,
-        externalId: assistantExternalId,
-      });
+      // Persist the assistant reply once streaming finishes. Errors here are
+      // caught inside streamTutorResponse and logged, so a failed save can't
+      // silently reject an unhandled promise.
+      onComplete: async ({ text }) => {
+        await saveChatMessage({
+          topicId: topicId || null,
+          mode,
+          role: "assistant",
+          content: text,
+          externalId: assistantExternalId,
+        });
+      },
     });
 
     return result.toUIMessageStreamResponse({

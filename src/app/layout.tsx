@@ -5,6 +5,13 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { PomodoroProvider } from "@/components/pomodoro/PomodoroProvider";
 
+// The root layout renders <Sidebar/>, an async server component that queries
+// the DB (getFullCurriculum / getCurrentTopic). Force-dynamic so `next build`
+// never prerenders any page's shell against the DB — otherwise the auto-
+// generated /_not-found page tries to render at build and fails with
+// PrismaClientKnownRequestError (ECONNREFUSED) when no Postgres is up.
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -17,7 +24,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LearnTheStack — AI Tutor",
-  description: "6-month TypeScript full-stack mastery curriculum with AI tutoring",
+  description: "9-month TypeScript full-stack mastery curriculum with AI tutoring",
 };
 
 export default function RootLayout({

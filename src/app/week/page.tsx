@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { TopicRow } from "@/components/schedule/TopicRow";
+import { WeeklyFreshnessSection } from "@/components/dashboard/WeeklyFreshnessSection";
 
 export const dynamic = "force-dynamic";
 
@@ -156,6 +157,8 @@ export default async function WeekPage({
           );
         })}
       </div>
+
+      <WeeklyFreshnessSection weekDate={focus} />
 
       <div className="flex gap-3">
         <Link href="/today">
