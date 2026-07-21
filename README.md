@@ -87,6 +87,17 @@ npm run db:studio    # Prisma Studio
 
 > **Note:** `db:migrate` (`prisma migrate dev`) is *interactive* and is for authoring new migrations. To apply existing migrations to a fresh database non-interactively, use `db:deploy` (or the all-in-one `db:setup`).
 
+### Switching the tutor model
+
+The AI tutor runs on **Claude Haiku 4.5** by default, but you can point it at a local **Ollama** instance for free/private/offline iteration — set `TUTOR_PROVIDER` in `.env`:
+
+```bash
+TUTOR_PROVIDER=anthropic   # Claude Haiku 4.5 (default; needs ANTHROPIC_API_KEY)
+TUTOR_PROVIDER=ollama      # local Ollama (OLLAMA_BASE_URL, OLLAMA_MODEL)
+```
+
+Restart the dev server after changing it. On the Ollama path, pick a tool-capable model (e.g. `qwen2.5`, `llama3.1`) if you want the tutor's tool calls to work — smaller models often answer without calling tools. The cost guardrails and the Haiku pin only apply to the Anthropic path.
+
 ---
 
 ## Project Philosophy
