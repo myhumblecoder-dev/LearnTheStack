@@ -11,15 +11,12 @@ describe('weeklyFreshness', () => {
       {
         reviewStage: 1,
         nextReviewAt: null,
-undefined,
         status: 'COMPLETED',
-        lastReviewedAt: new Date(Date.UTC(2024, 0, 10)),
       },
       {
         reviewStage: 1,
         nextReviewAt: null,
         status: 'COMPLETED',
-        lastReviewedAt: new Date(Date.UTC(2024, 0, 10)),
       },
     ]
     const result = computeWeeklyFreshness(topics, today)
@@ -35,13 +32,11 @@ undefined,
         reviewStage: 1,
         nextReviewAt: new Date(Date.UTC(2024, 0, 10)),
         status: 'COMPLETED',
-        lastReviewedAt: new Date(Date.UTC(2024, 0, 7)), // 3 days ago
       },
       {
         reviewStage: 1,
         nextReviewAt: null,
         status: 'NOT_STARTED',
-        lastReviewedAt: null,
       },
     ]
     const result = computeWeeklyFreshness(topics, today)
@@ -67,7 +62,6 @@ undefined,
         reviewStage: 1,
         nextReviewAt: new Date(Date.UTC(2023, 11, 29)),
         status: 'COMPLETED',
-        lastReviewedAt: new Date(Date.UTC(2023, 11, 26)), // 15 days ago
       },
     ]
     const result = computeWeeklyFreshness(topics, today)
