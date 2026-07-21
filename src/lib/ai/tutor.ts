@@ -1,13 +1,7 @@
-import { streamText, type ModelMessage } from "ai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { streamText, stepCountIs, type ModelMessage, type LanguageModelUsage } from "ai";
+import { tutorModel, MAX_TUTOR_STEPS, MAX_OUTPUT_TOKENS } from "./model";
+import { tutorTools } from "./tools";
 import { lessonSystemPrompt, quizSystemPrompt, codeReviewSystemPrompt } from "./prompts";
-
-const ollama = createOpenAICompatible({
-  name: "ollama",
-  baseURL: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1",
-});
-
-const model = ollama(process.env.OLLAMA_MODEL ?? "qwen2.5:32b");
 
 interface TutorOptions {
   mode: "LESSON" | "QUIZ" | "CODE_REVIEW";
@@ -23,10 +17,16 @@ interface TutorOptions {
     resources: string[];
     completedTopics?: string[];
   };
+  // Called once after streaming completes, with the final text + token usage.
+  // The route uses this to persist the assistant message; errors are caught here.
+  onComplete?: (result: {
+    text: string;
+    usage: LanguageModelUsage;
+  }) => Promise<void> | void;
 }
 
 export function streamTutorResponse(options: TutorOptions) {
-  const { mode, messages, topicContext } = options;
+  const { mode, messages, topicContext, onComplete } = options;
 
   const systemPromptFn = {
     LESSON: lessonSystemPrompt,
@@ -34,9 +34,24 @@ export function streamTutorResponse(options: TutorOptions) {
     CODE_REVIEW: codeReviewSystemPrompt,
   }[mode];
 
+  // Only the conversational lesson tutor gets tools. QUIZ emits a strict JSON
+  // result block and CODE_REVIEW is self-contained — tools would muddy both.
+  const tools = mode === "LESSON" ? tutorTools : undefined;
+
   return streamText({
-    model,
+    model: tutorModel,
     system: systemPromptFn(topicContext),
     messages,
+    tools,
+    stopWhen: stepCountIs(MAX_TUTOR_STEPS),
+    maxOutputTokens: MAX_OUTPUT_TOKENS,
+    onFinish: async ({ text, usage }) => {
+      console.log(`[tutor:${mode}] tokens`, usage);
+      try {
+        await onComplete?.({ text, usage });
+      } catch (err) {
+        console.error(`[tutor:${mode}] onComplete failed`, err);
+      }
+    },
   });
 }

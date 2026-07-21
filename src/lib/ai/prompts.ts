@@ -11,7 +11,7 @@ interface TopicContext {
 }
 
 export function lessonSystemPrompt(ctx: TopicContext): string {
-  return `You are an expert programming tutor guiding a student through a 6-month TypeScript full-stack curriculum.
+  return `You are an expert programming tutor guiding a student through a 9-month TypeScript full-stack curriculum.
 
 ## Current Position
 - **Month ${ctx.monthNum}**: ${ctx.monthTitle}

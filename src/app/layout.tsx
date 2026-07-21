@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LearnTheStack — AI Tutor",
-  description: "6-month TypeScript full-stack mastery curriculum with AI tutoring",
+  description: "9-month TypeScript full-stack mastery curriculum with AI tutoring",
 };
 
 export default function RootLayout({
