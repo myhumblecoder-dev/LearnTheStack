@@ -6,6 +6,7 @@ import { RecentQuizzes } from "@/components/dashboard/RecentQuizzes";
 import { DueReviews } from "@/components/schedule/DueReviews";
 import { PaceSection } from "@/components/dashboard/PaceSection";
 import { PressureSection } from "@/components/dashboard/PressureSection";
+import ThisWeekFreshnessSection from "@/components/dashboard/ThisWeekFreshnessSection";
 
 export const dynamic = "force-dynamic";
 
@@ -25,8 +26,9 @@ export default function Dashboard() {
       <StreakSection />
       <PaceSection />
       <PressureSection />
+      <ThisWeekFreshnessSection />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:gridint-2 gap-8">
         <MonthProgress />
         <RecentQuizzes />
       </div>
