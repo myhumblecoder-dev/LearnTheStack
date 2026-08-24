@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { getCurriculumWithSchedule, formatUtc, monthLabel } from "@/lib/curriculum/schedule";
+import { getCurriculumWithSchedule, formatUtc, monthLabel, todayUtc } from "@/lib/curriculum/schedule";
+import { getAllWeeksWithFreshness } from "@/lib/curriculum/weeklyFreshnessQueries";
+import { WeekFreshnessBadge } from "@/components/dashboard/WeekFreshnessBadge";
 import { Card, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -11,6 +13,8 @@ const TRACK_ORDER: TrackKey[] = ["CORE", "DSA", "AZURE", "CLAUDE_CODE"];
 
 export default async function MonthPage() {
   const months = await getCurriculumWithSchedule();
+  const weekFreshness = await getAllWeeksWithFreshness(todayUtc());
+  const freshnessByWeekId = new Map(weekFreshness.map((r) => [r.weekId, r.freshness]));
 
   return (
     <div className="max-w-4xl mx-auto p-8 space-y-6">
@@ -92,15 +96,22 @@ export default async function MonthPage() {
                 const wDone = week.topics.filter(
                   (t) => t.progress?.status === "COMPLETED"
                 ).length;
+                const fw = freshnessByWeekId.get(week.id);
                 return (
                   <Link
                     key={week.id}
                     href={`/week?date=${week.startDate.toISOString().slice(0, 10)}`}
                     className="flex items-center justify-between text-xs rounded-md px-2 py-1.5 hover:bg-zinc-800/60 transition-colors"
                   >
-                    <span className="text-zinc-300">
+                    <span className="text-zinc-300 inline-flex items-center gap-2">
                       <span className="text-zinc-500">W{week.weekNum}</span>{" "}
                       {week.title}
+                      {fw && (
+                        <WeekFreshnessBadge
+                          freshness={fw.freshness}
+                          pressure={fw.pressure}
+                        />
+                      )}
                     </span>
                     <span className="text-zinc-500 shrink-0 ml-2">
                       {formatUtc(week.startDate, {
