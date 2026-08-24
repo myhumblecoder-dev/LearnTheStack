@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    env:
+      # prisma generate only needs a parseable URL at build time; no connection
+      # is opened. Runtime secrets are not available to CI by design.
+      DATABASE_URL: postgresql://user:password@localhost:5432/db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx prisma generate
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run build
